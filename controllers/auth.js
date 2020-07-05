@@ -1,14 +1,16 @@
 const User = require("../models/user");
+const Seller = require("../models/seller");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken"); // To generate signed token
 const expressJwt = require("express-jwt");
 
 exports.signup = (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
+  const { name, email, password, role} = req.body;
+  if (!name || !email || !password || !role) {
     res.status(422).json({ error: "please add all the fields" });
   }
 
+  if(role == 0){
   User.findOne({ email: email })
     .then((saveUser) => {
       if (saveUser) {
@@ -18,6 +20,7 @@ exports.signup = (req, res) => {
         const user = new User({
           email,
           name,
+          role,
           password: hashPassword,
         });
         user
@@ -33,14 +36,43 @@ exports.signup = (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+  }else{
+    Seller.findOne({ email: email })
+    .then((saveSeller) => {
+      if (saveSeller) {
+        return res.json({ error: "Seller already exits" });
+      }
+      bcrypt.hash(password, 12).then((hashPassword) => {
+        const seller = new Seller({
+          email,
+          name,
+          role,
+          password: hashPassword,
+        });
+        seller
+          .save()
+          .then((seller) => {
+            res.json({ message: "seller data saved successfully", seller: seller });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+   
+  }
 };
 
 exports.signin = (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(422).json({ Error: "Please add email and password" });
+  const { email, password, role } = req.body;
+  if (!email || !password || !role) {
+    res.status(422).json({ Error: "Please add email and password and role" });
   }
-  User.findOne({ email })
+  if(role == 0){
+    User.findOne({ email })
     .then((savedUser) => {
       console.log(savedUser);
       if (!savedUser) {
@@ -63,6 +95,32 @@ exports.signin = (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+  }else{
+    Seller.findOne({ email })
+    .then((savedSeller) => {
+      console.log(savedSeller);
+      if (!savedSeller) {
+        return res.status(422).json({ Error: "Invalid Email or Password" });
+      }
+      bcrypt.compare(password, savedSeller.password).then((doMatch) => {
+        if (doMatch) {
+          const token = jwt.sign({ _id: savedSeller.id }, process.env.JWT_SECRET);
+
+          res.cookie("t", token, { expire: new Date() + 9999 });
+
+          const { _id, name, email, role } = savedSeller;
+
+          return res.json({ token, seller: { _id, name, email, role } });
+        } else {
+          return res.status(422).json({ Error: "Invalid Email or Password" });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
+  
 };
 
 exports.signout = (req, res) => {
