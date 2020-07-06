@@ -14,7 +14,19 @@ exports.userById = (req, res, next, id) => {
 };
 
 exports.home = async (req, res) => {
-  const category = await Category.find({});
+  const category = await Category.find();
   console.log(typeof category);
   res.json(category);
 };
+
+// exports.home = (req, res) => {
+//   var name = req.params.name;
+//   Category.find({name: `${name}`}).exec((err,data) => {
+//     if (err || !data) {
+//       return res.status(400).json({
+//         error: "Data not Found",
+//       });
+//     }
+//     res.json(data);
+//   })
+// };
