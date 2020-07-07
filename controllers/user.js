@@ -15,7 +15,6 @@ exports.userById = (req, res, next, id) => {
 
 exports.home = async (req, res) => {
   const category = await Category.find();
-  console.log(typeof category);
   res.json(category);
 };
 

@@ -12,7 +12,6 @@ router.param("userId", userById);
 router.get("/home", home);
 
 router.get("/home/:name",(req,res) => {
-    console.log(req.params.name);
     Category.find({name:req.params.name})
     .then(data => res.json(data))
     .catch(err => res.status(400).send(err));
