@@ -76,7 +76,7 @@ exports.signin = (req, res) => {
   if (role == 0) {
     User.findOne({ email })
       .then((savedUser) => {
-        console.log(savedUser);
+        // console.log(savedUser);
         if (!savedUser) {
           return res.status(422).json({ Error: "Invalid Email or Password" });
         }
@@ -103,7 +103,7 @@ exports.signin = (req, res) => {
   } else {
     Seller.findOne({ email })
       .then((savedSeller) => {
-        console.log(savedSeller);
+        // console.log(savedSeller);
         if (!savedSeller) {
           return res.status(422).json({ Error: "Invalid Email or Password" });
         }
@@ -141,8 +141,8 @@ exports.requireSignin = expressJwt({
 });
 
 exports.isAuth = (req, res, next) => {
-  console.log("Req Profile ", req.profile);
-  console.log(req.auth);
+  // console.log("Req Profile ", req.profile);
+  // console.log(req.auth);
   let user = req.profile && req.auth && req.profile._id == req.auth._id;
   if (!user) {
     return res.status(403).json({
