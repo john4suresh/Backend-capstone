@@ -5,7 +5,7 @@ const Category = require("../models/category");
 const { create, seller } = require("../controllers/category");
 const { requireSignin, isAdmin, isAuth } = require("../controllers/auth");
 const { userById, home } = require("../controllers/user");
-const { maid } = require("../controllers/maid");
+const { maid,maids } = require("../controllers/maid");
 
 
 router.post("/category/create/:user", requireSignin, create);
@@ -19,7 +19,8 @@ router.get("/home/:name",(req,res) => {
     .catch(err => res.status(400).send(err));
 })
 
-router.get('/maid',maid);
+router.get('/maids',maids);
+router.post('/maid',maid);
 
 router.post("/seller", seller);
 
